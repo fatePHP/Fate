@@ -1,182 +1,166 @@
 <?php defined('IN_FATE') or die('Access denied');
 
-		/**
-		 * @brief Ä£ÐÍ»ùÀà
-		 * @param $db     Êý¾Ý¿â²Ù×÷¶ÔÏó
-		 * @param $fields Òª²éÑ¯µÄ×Ö¶Î
-		 * @param $join   ¹ØÁª×Ö´®
-		 * @param $where  ²éÑ¯×Ö´®
-		 * @param $order  ÅÅÐò×Ö´®
-		 * @param $limit  È¡µÃÌõÊý
-		 **/
+    /**
+     * @brief æ¨¡åž‹åŸºç±»
+     * @param $db     æ•°æ®åº“æ“ä½œå¯¹è±¡
+     * @param $fields è¦æŸ¥è¯¢çš„å­—æ®µ
+     * @param $join   å…³è”å­—ä¸²
+     * @param $where  æŸ¥è¯¢å­—ä¸²
+     * @param $order  æŽ’åºå­—ä¸²
+     * @param $limit  å–å¾—æ¡æ•°
+     **/
 
-		class IModel {
-						
-					protected $db='';      
-					protected $fields='*'; 
-					protected $join='';    
-					protected $where='';
-					protected $order='';  
-					protected $limit='';   
-					
-					/**
-					 * @breif ³õÊ¼»¯º¯Êý
-					 **/
-					public function  __construct(){
-						
-								$this->db = new IDb;
-				  }
-				  				  
-				  /**
-				  * @brief ÇÐ»»Êý¾ÝÅäÖÃ
-				  **/
-				  
-				  /*
-				  public function switch_db($config){
-				  	
-				  		   $this->db = $this->driver->analyze_db($config);
-				  		   return $this;
-				  }
-				  */
-				  
-				  /**
-				  * @brief ÇÐ»»Êý¾Ý¿âÇý¶¯
-				  **/
-				  
-				  /*
-				  public function switch_db_driver($db_type,$dir=''){
-				  	
-				  			$this->db = $this->driver->analyze_db('',$db_type,$dir);
-				  		  return $this;
-				  }
-				  */
-				  
-				 /**
-				  * @brief ·µ»ØÊý¾Ý¿â¶ÔÏó
-				  **/					  
-				  public function db(){
-				  		return $this->db;
-				  }
-				  
-				 /**
-				  *	@brief ÉèÖÃfields×Ö¶Î
-				  **/
-				  
-				  public function fields($fields='*'){
-				  	
-				  	$this->fields = $fields;
-				  	return $this;
-				  }
-				  
-				 /**
-				  *	@brief ÉèÖÃjoin×Ö´® 
-				  **/
-				 public function join($join=''){
-					 	
-					 	$this->join  = empty($join)?'':$join;
-				 		return $this;
-				 }
-				 
-				/**
-				 * @brief ÉèÖÃwhere×Ö´®
-				 **/	 
-				 public function where($where=''){
-				 	
-				 		$this->where  = empty($where)?'':' WHERE '.$where;
-				 		return $this;
-				 }
-				 
-				/**
-				 * @brief ÉèÖÃorder×Ö´®
-				 **/
-				 public function order($order=''){
-				 	
-				 		$this->order  = empty($order)?'':' ORDER BY '.$order;
-				 		return $this;
-				 }
-				 
-				 /**
-				 * @brief ÉèÖÃ limit ×Ö´®
-				 **/
-				 public function limit($limit=''){
-				 	
-				 		$this->limit  = empty($limit)?'':' LIMIT '.$limit;
-				 		return $this;
-				 }
-				 
-				/**
-				 * @brief Æ´×°sql 
-				 **/
-				 public function sql(){
-				 		
-				  	$sql = "SELECT ".$this->fields." FROM  ".$this->table.''.$this->join.$this->where.$this->order.$this->limit;
-				 		return $sql;
-				 }
-				 
-				 /**
-				  * @brief Ö´ÐÐsqlÓï¾ä »ñÈ¡ËùÓÐÊý¾Ý
-				  **/ 
-				  public function find($sql,$type='assoc',$cacheResult=true){
-				  				
-							$result = $this->db()->query($sql,$cacheResult);
-							$all = array();
-							while( $value = $this->db()->fetchArray($result,$type)){
-				
-									$all[]=$value;	
-							}
-							$this->db()->free($result);
-							return $all;
-				  }
-					  
-				 /**
-				  * @brief Ö´ÐÐsqlÓï¾ä »ñµÄÒ»ÌõÊý¾Ý
-				  **/
-				  public function findOne($sql,$type='assoc',$cacheResult=true){
-				  	
-							$result = $this->db()->query($sql,$cacheResult);
-						  $one    = $this->db()->fetchArray($result,$type);
-						  $this->db()->free($result);
-						  return $one;
-				  }
-					  
-				 /**
-					* @breif ²åÈë²Ù×÷
-					**/	  
-					public function insert($tbName,$arr){
-					  	
-					  	 	$str = "(`".implode('`,`',array_keys($arr))."`) VALUES ('".implode("','",$arr)."')";
-					  	 	$sql= "INSERT INTO `$tbName` $str";
-					  	 	return $this->db()->query($sql);
-					}
-					  
-					public function insertStr($tbName,$fields,$values){
-					  	
-					  		$sql ="INSERT INTO `$tbName` $fields VALUES $values";
-					  		return $this->db()->query($sql);	
-					}
-					  
-				  /**
-				   * @breif ÐÞ¸Ä²Ù×÷
-				   **/
-				  public function update($tbName,$arr,$where='1=1'){
-				  		
-				  		$str='';
-				  		foreach($arr as $k=>$v){
-				  			$str.=" `$k`='{$v}',";
-				  		}
-				  		$str=rtrim($str,',');
-				  		$sql = "UPDATE `$tbName` SET $str WHERE $where";
-				  		return $this->db()->query($sql);
-				  }
-				  
-				 /**
-				  * @breif É¾³ý²Ù×÷ 
-				  **/
-				  public function delete($tbName,$where){
-				  	
-				  		$sql = "DELETE FROM `$tbName` WHERE $where";
-				  		$this->db()->query($sql);
-				  }
-		}
+    class IModel extends IComponent{
+
+            protected $db='';      
+            protected $fields='*'; 
+            protected $join='';    
+            protected $where='';
+            protected $order='';  
+            protected $limit='';
+            private   $table ='';
+
+            /**
+             * @breif åˆå§‹åŒ–å‡½æ•°
+             **/
+            public function  __construct(){ 
+                 $this->db = Fate::app()->db->drive();
+                 parent::__construct();
+            }
+
+            /**
+             * @brief è¿”å›žæ•°æ®åº“å¯¹è±¡
+             **/					  
+             public function getDb(){
+                 
+                   return $this->db;
+             }
+             
+             /**
+              * @brief è®¾ç½®è¡¨å 
+              **/
+             public function setTable($value){
+                 $this->table = Fate::app()->db->prefix.$value;
+             }
+             
+             /**
+              * @brief èŽ·å–è¡¨å
+              */
+             public function getTable(){
+                 return $this->table;
+             }
+
+            /**
+             *	@brief è®¾ç½®fieldså­—æ®µ
+             **/
+             public function fields($fields='*'){
+
+                   $this->fields = $fields;
+                   return $this;
+             }
+
+            /**
+             *	@brief è®¾ç½®joinå­—ä¸² 
+             **/
+            public function join($join=''){
+
+                $this->join  = empty($join)?'':$join;
+                return $this;
+            }
+
+            /**
+             * @brief è®¾ç½®whereå­—ä¸²
+             **/	 
+             public function where($where=''){
+
+                    $this->where  = empty($where)?'':' WHERE '.$where;
+                    return $this;
+             }
+
+            /**
+             * @brief è®¾ç½®orderå­—ä¸²
+             **/
+             public function order($order=''){
+
+                    $this->order  = empty($order)?'':' ORDER BY '.$order;
+                    return $this;
+             }
+
+            /**
+            * @brief è®¾ç½® limit å­—ä¸²
+            **/
+            public function limit($limit=''){
+
+                    $this->limit  = empty($limit)?'':' LIMIT '.$limit;
+                    return $this;
+            }
+
+            /**
+             * @brief æ‹¼è£…sql 
+             **/
+             public function sql(){
+                    $sql = "SELECT ".$this->fields." FROM  ".$this->table.''.$this->join.$this->where.$this->order.$this->limit;
+                    $this->freeCondition();
+                    return $sql;
+             }
+             
+             /**
+              * @brief é‡Šæ”¾sqlè¯­å¥æ¡ä»¶
+              */
+             public function freeCondition(){
+                    
+                    $this->fields='';
+                    $this->join='';
+                    $this->where='';
+                    $this->order='';
+                    $this->limit='';
+             }
+
+            /**
+             * @brief æ‰§è¡Œsqlè¯­å¥ èŽ·å–æ‰€æœ‰æ•°æ®
+             **/ 
+             public function fetchAll($sql,$type='assoc',$cacheResult=true){
+                     
+                    return $this->db->fetchAll($sql,$type='assoc',$cacheResult=true);
+             }
+
+            /**
+             * @brief æ‰§è¡Œsqlè¯­å¥ èŽ·çš„ä¸€æ¡æ•°æ®
+             **/
+             public function fetchOne($sql,$type='assoc',$cacheResult=true){
+
+                    return $this->db->fetchOne($sql,$type='assoc',$cacheResult=true);
+             }
+
+            /**
+             * @breif æ’å…¥æ“ä½œ
+             **/	  
+             public function insert($tbName,$arr){
+                 
+                   return $this->db->insert($tbName,$arr);
+             }
+
+             public function insertStr($tbName,$fields,$values){
+
+                    $this->db->insertStr($tbName,$fields,$values);
+             }
+
+            /**
+             * @breif ä¿®æ”¹æ“ä½œ
+             **/
+            public function update($tbName,$arr,$where='1=1'){
+
+                    $this->db->update($tbName,$arr,$where='1=1');
+            }
+
+            /**
+             * @breif åˆ é™¤æ“ä½œ 
+             **/
+             public function delete($tbName,$where){
+
+                    $this->db->delete($tbName,$where);
+             }
+             
+    }
 
 ?>

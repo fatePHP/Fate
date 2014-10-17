@@ -1,99 +1,99 @@
-<?php defined('IN_FATE') or die('access deneid');
+ï»¿<?php defined('IN_FATE') or die('access deneid');
 			
-			/**
-			 * @brief ÎÄ¼þ»º´æÀà
-			 * @param $cacheDepth     »º´æÄ¿Â¼Éî¶È;
-			 * @param $cacheDir 		  »º´æÄ¿Â¼
-			 * @param $cacheSuffix    »º´æÎÄ¼þºó×º
-			 * @param $cacheKeyPrefix »º´æ¼üÃûÇ°×º
-			 * @param $gced           À¬»ø»º´æ»ØÊÕ±êÖ¾·û
-			 **/
+        /**
+         * @brief æ–‡ä»¶ç¼“å­˜ç±»
+         * @param $cacheDepth     ç¼“å­˜ç›®å½•æ·±åº¦;
+         * @param $cacheDir       ç¼“å­˜ç›®å½•
+         * @param $cacheSuffix    ç¼“å­˜æ–‡ä»¶åŽç¼€
+         * @param $cacheKeyPrefix ç¼“å­˜é”®åå‰ç¼€
+         * @param $gced           åžƒåœ¾ç¼“å­˜å›žæ”¶æ ‡å¿—ç¬¦
+         **/
 			 
-			class IFileCache extends ICache {
-				
-						private  $cacheDepth=2;
-						private  $cacheDir;
-						private  $cacheSuffix;
-						private  $cacheKeyPrefix='fate_';
-						private  $gced;
-						
-						/**
-						 * @brief ³õÊ¼»¯º¯Êý
-						 **/
-						public function init(){
-							
-							
-						}
+        class IFileCache extends ICache {
 
-						/**
-						 * @brief »ñÈ¡»º´æ
-						 * @param $key ×Ô¶¨Òå¼üÃû
-						 **/
-						public function get($key){
-							
-							  $cacheKey  = $this->getCacheKey($key);
-							  $cacheFile = $this->getCacheFile($cacheKey);
-							  
-							  if(is_file($cacheFile) && ($time=@filemtime($cacheFile))>time()){
-							  	
-							 		return $content = unserialize(file_get_contents($cacheFile));
-							 			 
-								}else if($time>0){
-									
-									@unlink($cacheFile);	
-								}
-							   
-							  return false;
-						}
-						
-						/**
-						 * @brief ÉèÖÃ»º´æ
-						 **/
-						public function set($key,$value=''){
-							
-								$cacheKey  = $this->getCacheKey($key);
-								$cacheFile = $this->getCacheFile($cacheKey);
-						}
-						
-						/**
-						 * @brief É¾³ý»º´æ
-						 **/
-						public function delete($key){
-							
-							
-						}
-						
+            private  $cacheDepth=2;
+            private  $cacheDir;
+            private  $cacheSuffix;
+            private  $cacheKeyPrefix='fate_';
+            private  $gced;
+
             /**
-             * @brief »ñÈ¡»º´æ¼üÃû
+             * @brief åˆå§‹åŒ–å‡½æ•°
              **/
-						public function getCacheKey($key){
-							
-								 return md5($this->cacheKeyPrefix.$key);
-						}
-						
-						/**
-						 * @brief »ñÈ¡»º´æÎÄ¼þµØÖ·
-						 **/
-						public function getCacheFile($cacheKey){
-							
-								$cacheFile = $cacheKey.$this->cacheSuffix
-							  $cachePath = $this->cacheDir;
-							  for($i=1;$i<$this->cacheDepth;$i++){
-							  	 	$cachePath.=substr($cacheKey,($i-1)*2,2).'/';
-							  }
-							  $cachePath.= $this->cacheDir.'/';
-								return $cachePath.$cacheFile;
-						}
-						
-						/**
-						 * @brief »ØÊÕÀ¬»ø»º´æ
-						 **/
-						public function gc(){
-							
-							
-						}
-				
-			}
+            public function init(){
+
+
+            }
+
+            /**
+             * @brief èŽ·å–ç¼“å­˜
+             * @param $key è‡ªå®šä¹‰é”®å
+             **/
+            public function get($key){
+
+                    $cacheKey  = $this->getCacheKey($key);
+                    $cacheFile = $this->getCacheFile($cacheKey);
+
+                    if(is_file($cacheFile) && ($time=@filemtime($cacheFile))>time()){
+
+                                  return $content = unserialize(file_get_contents($cacheFile));
+
+                          }else if($time>0){
+
+                                  @unlink($cacheFile);	
+                          }
+
+                    return false;
+            }
+
+            /**
+             * @brief è®¾ç½®ç¼“å­˜
+             **/
+            public function set($key,$value=''){
+
+                    $cacheKey  = $this->getCacheKey($key);
+                    $cacheFile = $this->getCacheFile($cacheKey);
+            }
+
+            /**
+             * @brief åˆ é™¤ç¼“å­˜
+             **/
+            public function delete($key){
+
+
+            }
+
+            /**
+            * @brief èŽ·å–ç¼“å­˜é”®å
+            **/
+            public function getCacheKey($key){
+
+                   return md5($this->cacheKeyPrefix.$key);
+            }
+
+            /**
+             * @brief èŽ·å–ç¼“å­˜æ–‡ä»¶åœ°å€
+             **/
+            public function getCacheFile($cacheKey){
+
+                    $cacheFile = $cacheKey.$this->cacheSuffix;
+                    $cachePath = $this->cacheDir;
+                    for($i=1;$i<$this->cacheDepth;$i++){
+                                  $cachePath.=substr($cacheKey,($i-1)*2,2).'/';
+                    }
+                    $cachePath.= $this->cacheDir.'/';
+                          return $cachePath.$cacheFile;
+            }
+
+            /**
+             * @brief å›žæ”¶åžƒåœ¾ç¼“å­˜
+             **/
+            public function gc(){
+
+
+            }
+
+        }
 
 
 ?>

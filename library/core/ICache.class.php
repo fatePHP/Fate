@@ -1,7 +1,7 @@
-<?php	defined('IN_FATE') or die('Access denied!');
+ï»¿<?php	defined('IN_FATE') or die('Access denied!');
 
 			/**
-			 * @brief »º´æ³éÏóÀàÀà
+			 * @brief ç¼“å­˜æŠ½è±¡ç±»ç±»
 			 **/
 			 
 			abstract class ICache {

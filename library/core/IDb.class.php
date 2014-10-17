@@ -1,27 +1,50 @@
 <?php defined('IN_FATE') or die('Access denied');
 			
-			/**
-			 * @brief Êý¾Ý¿âÇý¶¯Àà
-			 * @param $type Êý¾Ý¿âÀàÐÍ
-			 * @param $db   Êý¾Ý¿â¶ÔÏó
-			 **/
-			 
-			class IDb {
-				
-						private $type;
-						private $db;
-						
-						/**
-						 * @brief ³õÊ¼»¯º¯Êý 
-						 **/
-						public function __construct($type=''){
-								
-								$db_config = IApp::config('db');
-								$this->type = empty($config['type'])?'mysql':$config['type'];
-								$dbName = 'I'.ucfirst($this->type);
-								$this->db = IApp::object($dbName,$db_config);
-								return $this->db;
-						}
+    /**
+     * @brief æ•°æ®åº“é©±åŠ¨ç±»
+     * @param $type æ•°æ®åº“ç±»åž‹
+     * @param $db   æ•°æ®åº“å¯¹è±¡
+     **/
 
-			}
+    class IDb extends IComponent{
+
+         protected $type;
+         protected $host;
+         protected $name;
+         protected $user;
+         protected $pwd;
+         protected $prefix;
+         protected $pconnect;
+         protected $showError;
+         protected $charset;
+         private   $driver;
+         
+         
+         public  function __construct($config){
+              parent::__construct($config);
+              unset($config['type']);
+              $this->drive($this->type,$config);
+         }
+         
+         public function drive($type='',$config=array()){
+               
+              if(empty($type))
+                  return $this->driver;
+              
+              $driverName  ='I'.ucfirst($type);
+              Fate::import('sys_db.'.$driverName);
+              $this->driver = new $driverName($config);
+         }
+         
+         public function getPrefix(){
+             
+                return $this->prefix;
+         }
+         
+         public function setPrefix($value){
+             
+               $this->prefix = $value;
+         }
+
+    }
 ?>

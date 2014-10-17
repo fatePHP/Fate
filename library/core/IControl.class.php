@@ -1,66 +1,105 @@
-<?php defined('IN_FATE') or die('Access denied');
+ï»¿<?php defined('IN_FATE') or die('Access denied');
 
-			/**
-			 * @brief ËùÓÐ¿ØÖÆÆ÷µÄ»ùÀà
-			 * @param $view ÊÓÍ¼¶ÔÏó
-			 * @param $layout ÊÓÍ¼Ä£°å
-			 **/
+    /**
+     * @brief æ‰€æœ‰æŽ§åˆ¶å™¨çš„åŸºç±»
+     * @param $view   è§†å›¾å¯¹è±¡
+     * @param $model  æ¨¡åž‹å¯¹è±¡
+     **/
 			 
-			class IControl {
-				    
-						private $view;
-						private $layout;
-						
-				    /**
-				     * @brief ³õÊ¼»¯º¯Êý
-				     **/
-						public function __construct(){
-								 
-								 $this->view = IApp::object('IView');
-						}    
-						
-						
-						public function beginAction(){
-							
-						}
-						
-						public function endAction(){
-							
-						}
-																
-					 /**
-						* @brief Ä£°å±äÁ¿¸³Öµ
-						* @param $k ¼üÃû
-						* @param $v ¼üÖµ
-						**/
-						public function setVal($k,$v){
-							
-									$this->view->assign($k,$v);
-						}
-						
-					 /**
-						* @brief Êä³öÄ£°å 
-						**/			
-						public function render($path,$value=array(),$layout=true){
-							
-									if(is_array($value) && !empty($value)){
-						
-											foreach($value as $k=>$v){
-												 $this->view->assign($k,$v);
-											}	
-									}
-								
-									$this->view->display($path,$layout);
-						}
-						
-					 /**
-						* @brief »ñÈ¡modelÀà
-						**/
-						public function model($model){
-							
-							    return IApp::object($model.'Model');
-						}
-						
-			}
+   class IControl extends IComponent{
+
+            private  $view;
+            private  $model;
+
+            /**
+             * @brief åˆå§‹åŒ–å‡½æ•°
+             **/
+            public function __construct(){
+                  
+                 $this->view = Fate::app()->view;
+                 $this->model = $this->model();
+                 parent::__construct();
+        
+            }    
+            
+            /*
+             * @brief æ‰§è¡Œactionä¹‹å‰è¿›è¡Œçš„æ“ä½œ
+             */
+            public function beginAction(){
+
+            }
+            
+            /*
+             * @brief æ‰§è¡Œactionä¹‹åŽè¿›è¡Œçš„æ“ä½œ
+             */
+            public function endAction(){
+
+            }
+
+            /**
+             * @brief æ¨¡æ¿å˜é‡èµ‹å€¼
+             * @param $k é”®å
+             * @param $v é”®å€¼
+             **/
+             public function setVal($k,$v){
+
+                  $this->view->assign($k,$v);
+             }
+
+            /**
+             * @brief è¾“å‡ºæ¨¡æ¿ 
+             **/			
+             public function render($path,$value=array(),$layout=true){
+
+                    if(is_array($value) && !empty($value)){
+
+                        foreach($value as $k=>$v){
+                             $this->view->assign($k,$v);
+                        }	
+                    }
+                    
+                    $this->view->display($path,$layout);
+             }
+             
+             /**
+              * @brief è®¾ç½®è§†å›¾å¸ƒå±€
+              * @param type $value
+              */
+             public function setLayout($value){
+                 
+                  $this->view->layout = $value;
+             }
+             
+             /**
+              * @brief è§†å›¾å¸ƒå±€æ–‡ä»¶
+              * @return type
+              */
+             public function getLayout(){
+                 
+                  return $this->view->layout;
+             }
+             
+             /**
+              * @brief åŠ è½½æ¨¡åž‹ 
+              * @param type $name
+              * @param type $module
+              * @return type
+              */
+             public function model($name='',$module=''){
+
+                 if(empty($name))
+                    $name = Fate::app()->control;
+                 
+                 return Fate::app()->model($name,$module);
+             }
+             
+             /**
+              * @brief èŽ·å–å½“å‰æŽ§åˆ¶å™¨å¯¹åº”çš„ æ¨¡åž‹ç±»
+              */
+             public function getModel(){
+                  return $this->model;
+             }
+
+  }
 			
 ?>

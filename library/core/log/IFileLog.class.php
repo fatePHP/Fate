@@ -1,144 +1,144 @@
-<?php defined('IN_FATE') or die('Access denied');
+ï»¿<?php defined('IN_FATE') or die('Access denied');
 	
-	 		/**
-	 		 * @brief ÎÄ¼þÈÕÖ¾Àà
-	 		 * @param $maxFileSize ÈÕÖ¾ÎÄ¼þ´óÐ¡ µ¥Î»ÎªKB Ä¬ÈÏ×î´óÎª1M
-	 		 * @param $maxFileNum  ÈÕÖ¾ÎÄ¼þ¸öÊýÏÞÖÆ      Ä¬ÈÏÎª5¸ö
-	 		 * @param $filePath 	 ÈÕÖ¾ÎÄ¼þÂ·¾¶
-	 		 * @param $fileName    ÈÕÖ¾ÎÄ¼þÃû³Æ
-	 		 **/
+        /**
+         * @brief æ–‡ä»¶æ—¥å¿—ç±»
+         * @param $maxFileSize æ—¥å¿—æ–‡ä»¶å¤§å° å•ä½ä¸ºKB é»˜è®¤æœ€å¤§ä¸º1M
+         * @param $maxFileNum  æ—¥å¿—æ–‡ä»¶ä¸ªæ•°é™åˆ¶      é»˜è®¤ä¸º5ä¸ª
+         * @param $filePath 	æ—¥å¿—æ–‡ä»¶è·¯å¾„
+         * @param $fileName    æ—¥å¿—æ–‡ä»¶åç§°
+         **/
 	 		 
-	 		 class IFileLog extends ILog{
-	 		 				
-	 		 				private $maxFileSize = '1024';
-	 		 				private $maxFileNum  = '5';
-	 		 				private $logFilePath = '';
-	 		 				private $logFile = '';
-	 		 				
-	 		 				/**
-	 		 				 * @brief Ð´ÈëÈÕÖ¾ÎÄ¼þ
-	 		 				 * @param $message ÈÕÖ¾ÐÅÏ¢
-	 		 				 * @param $file    ÈÕÖ¾ÎÄ¼þ
-	 		 				 **/
-	 		 				public function write($message,$file){
-	 		 					
- 		 							$this->logFile = $this->getLogPath().'/'.$file;
- 		 							
-									if(@filesize($this->logFile)>$this->getMaxFileSize()*1024){
-											$this->distribution();
-									}
-									
-									$fp=@fopen($this->logFile,'a');
-									
-									@flock($fp,LOCK_EX);
-									if(is_array($message)){
-										foreach($message as $m)
-										@fwrite($fp,date('Y-m-d H:i:s')." $m\n");
-									}else{
-										@fwrite($fp,date('Y-m-d H:i:s')." $message\n");
-									}
-									@flock($fp,LOCK_UN);
-									@fclose($fp);
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief ¶ÁÈ¡ÈÕÖ¾ÎÄ¼þÄÚÈÝ
-	 		 				 * @param $file  ÈÕÖ¾ÎÄ¼þ
-	 		 				 **/
-	 		 				public function read($file,$length=''){
-	 		 					
-	 		 						$logFile = $this->getLogPath().'/'.$file;
-	 		 						
-	 		 						$fp = @fopen($logFile,'r');
-	 		 						//$content = fgets($fp,$length); °´ÐÐ¶ÁÈ¡
-	 		 						$content = empty($length)? fread($fp,filesize($logFile)):fread($fp,$length);
-	 		 						@fclose($fp);
-	 		 						echo $content;
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief ·ÖÅäÈÕÖ¾ÎÄ¼þ
-	 		 				 **/
-	 		 				public function distribution(){
-	 		 							
-										$max=$this->getMaxLogFiles();
-										
-										for($i=$max;$i>0;--$i)
-										{
-											$tempFile=$file.'_'.$i;
-											if(is_file($tempFile))
-											{
-												if($i===$max)
-													@unlink($file.'_'.$i);
-												else
-													@rename($tempFile,$file.'_'.($i+1));
-											}
-										}
-										
-										if(is_file($file))
-											@rename($file,$file.'_1'); 
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief »ñÈ¡ÈÕÖ¾ÎÄ¼þÏÞÖÆ¸öÊý
-	 		 				 **/
-	 		 				public function getMaxFileNum(){
-	 		 							
-	 		 							return $this->maxFileNum;
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief ÉèÖÃÈÕÖ¾ÎÄ¼þÏÞÖÆ¸öÊý
-	 		 				 **/
-	 		 				 
-	 		 				public function setMaxFileNum($num){
-	 		 					
- 		 								$num = intval($num);
- 		 						    $num = $num>0 ? $num:1;
- 		 								$this->maxFileNum = $num;
- 		 								return $this;
-	 		 				}
-	 		 				 
-	 		 				/**
-	 		 				 * @brief »ñÈ¡ÈÕÖ¾ÎÄ¼þÏÞÖÆ´óÐ¡
-	 		 				 **/
-	 		 				public function getMaxFileSize(){
-	 		 					
-	 		 							return $this->maxFileSize;
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief ÉèÖÃÈÕÖ¾ÎÄ¼þÏÞÖÆ´óÐ¡
-	 		 				 **/
-	 		 				public function setMaxFileSize($size){
-	 		 					
-	 		 							$size = intval($size);
-	 		 						  $size = $size>0 ? $size:1;
-	 		 					    $this->maxFileSize = $size;
-	 		 					    return $this;
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief »ñÈ¡ÈÕÖ¾ÎÄ¼þÂ·¾¶
-	 		 				 **/
-	 		 				public function getLogPath(){
-	 		 					
-	 		 							 return $this->logFilePath;
-	 		 				}
-	 		 				
-	 		 				/**
-	 		 				 * @brief ÉèÖÃÈÕÖ¾ÎÄ¼þÂ·¾¶
-	 		 				 **/
-	 		 				public function setLogPath($path){
-	 		 					
-	 		 							 $path = realPath($path);
-	 		 							 if(is_dir($path) && is_writeable($path)){
-	 		 						  	 $this->logFilePath = $path;
-	 		 						 	 }
-	 		 						   return $this;
-	 		 				}
-	 		 	
-	 		 }
+        class IFileLog extends ILog{
+
+            private $maxFileSize = '1024';
+            private $maxFileNum  = '5';
+            private $logFilePath = '';
+            private $logFile = '';
+
+            /**
+             * @brief å†™å…¥æ—¥å¿—æ–‡ä»¶
+             * @param $message æ—¥å¿—ä¿¡æ¯
+             * @param $file    æ—¥å¿—æ–‡ä»¶
+             **/
+            public function write($message,$file){
+
+                    $this->logFile = $this->getLogPath().'/'.$file;
+
+                    if(@filesize($this->logFile)>$this->getMaxFileSize()*1024){
+                                    $this->distribution();
+                    }
+
+                    $fp=@fopen($this->logFile,'a');
+
+                    @flock($fp,LOCK_EX);
+                    if(is_array($message)){
+                            foreach($message as $m)
+                            @fwrite($fp,date('Y-m-d H:i:s')." $m\n");
+                    }else{
+                            @fwrite($fp,date('Y-m-d H:i:s')." $message\n");
+                    }
+                    @flock($fp,LOCK_UN);
+                    @fclose($fp);
+            }
+
+            /**
+             * @brief è¯»å–æ—¥å¿—æ–‡ä»¶å†…å®¹
+             * @param $file  æ—¥å¿—æ–‡ä»¶
+             **/
+            public function read($file,$length=''){
+
+                            $logFile = $this->getLogPath().'/'.$file;
+
+                            $fp = @fopen($logFile,'r');
+                            //$content = fgets($fp,$length); æŒ‰è¡Œè¯»å–
+                            $content = empty($length)? fread($fp,filesize($logFile)):fread($fp,$length);
+                            @fclose($fp);
+                            echo $content;
+            }
+
+            /**
+             * @brief åˆ†é…æ—¥å¿—æ–‡ä»¶
+             **/
+            public function distribution(){
+
+                $max=$this->getMaxLogFiles();
+
+                for($i=$max;$i>0;--$i)
+                {
+                    $tempFile=$file.'_'.$i;
+                    if(is_file($tempFile))
+                    {
+                        if($i===$max)
+                                @unlink($file.'_'.$i);
+                        else
+                                @rename($tempFile,$file.'_'.($i+1));
+                    }
+                }
+
+                if(is_file($file))
+                        @rename($file,$file.'_1'); 
+            }
+
+            /**
+             * @brief èŽ·å–æ—¥å¿—æ–‡ä»¶é™åˆ¶ä¸ªæ•°
+             **/
+            public function getMaxFileNum(){
+
+                    return $this->maxFileNum;
+            }
+
+            /**
+             * @brief è®¾ç½®æ—¥å¿—æ–‡ä»¶é™åˆ¶ä¸ªæ•°
+             **/
+
+            public function setMaxFileNum($num){
+
+                    $num = intval($num);
+                    $num = $num>0 ? $num:1;
+                    $this->maxFileNum = $num;
+                    return $this;
+            }
+
+            /**
+             * @brief èŽ·å–æ—¥å¿—æ–‡ä»¶é™åˆ¶å¤§å°
+             **/
+            public function getMaxFileSize(){
+
+                    return $this->maxFileSize;
+            }
+
+            /**
+             * @brief è®¾ç½®æ—¥å¿—æ–‡ä»¶é™åˆ¶å¤§å°
+             **/
+            public function setMaxFileSize($size){
+
+                        $size = intval($size);
+                        $size = $size>0 ? $size:1;
+                        $this->maxFileSize = $size;
+                        return $this;
+            }
+
+            /**
+             * @brief èŽ·å–æ—¥å¿—æ–‡ä»¶è·¯å¾„
+             **/
+            public function getLogPath(){
+
+                   return $this->logFilePath;
+            }
+
+            /**
+             * @brief è®¾ç½®æ—¥å¿—æ–‡ä»¶è·¯å¾„
+             **/
+            public function setLogPath($path){
+
+                    $path = realPath($path);
+                    if(is_dir($path) && is_writeable($path)){
+                    $this->logFilePath = $path;
+                    }
+                   return $this;
+            }
+
+        }
 
 
 ?>
