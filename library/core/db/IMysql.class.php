@@ -116,7 +116,7 @@
                     foreach($arr as $k=>$v){
                             $str.=" `$k`='{$v}',";
                     }
-                    $str=ltrim(',',$str);
+                    $str=rtrim($str,',');
                     $sql = "UPDATE `$tbName` SET $str WHERE $where";
                     return $this->query($sql);
               }

@@ -90,7 +90,7 @@
 
                     $uri = $this->getRealSelf();
                     preg_match('/\.php\/(.*)/',$uri,$matchAll);
-                    $pathInfo = $matchAll[1]; 
+                    $pathInfo = empty($matchAll)? '':$matchAll['1']; 
                      foreach($this->partterns as $i=>$parttern)
                      {      
                           //定义配置
