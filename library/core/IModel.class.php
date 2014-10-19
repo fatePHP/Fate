@@ -150,7 +150,7 @@
              **/
             public function update($tbName,$arr,$where='1=1'){
 
-                    $this->db->update($tbName,$arr,$where='1=1');
+                    $this->db->update($tbName,$arr,$where);
             }
 
             /**

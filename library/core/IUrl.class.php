@@ -61,8 +61,9 @@
                     $parttern.=$append ?'/u':'$/u'; //确定是完全匹配还是模糊匹配		
                     $this->partterns[$i] = $parttern;
                     $this->routes[$i] = $route;
-                    $i++;
-                } 
+                    $i++;  
+                    
+                }  
                 
                 return $this;
            }

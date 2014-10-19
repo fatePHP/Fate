@@ -52,7 +52,7 @@
                     $result = @$func($sql) or $this->show_error_msg('错误的SQL语句 "'.$sql.'"');
                     return $result;
               }
-
+  
               /**
                * @brief 解析结果集
                **/
