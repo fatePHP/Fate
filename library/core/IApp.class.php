@@ -58,7 +58,6 @@
 
                 $this->config['main']= require $mainConfig;
                 $this->config['component'] = require $componentConfig;
-
                 foreach($this->config['main'] as $key=>$value){
                     if(is_array($this->$key)){
                           if(is_array($value)){
@@ -121,8 +120,7 @@
                                                           
                 $url_route = $this->url->parseUrlRules()->parseUrl();
                 $info = explode('/',trim($url_route,'/'));
-              
-                if(!empty($info) && !empty($url_route)){
+                if(!empty($info[0]) && !empty($url_route)){
                     if($this->isModule($info[0])){
                         $this->module  = $info[0];
                         $this->control = !empty($info[1])? $info[1]:$this->control;
@@ -139,7 +137,6 @@
              * @brief 执行应用
              **/
             public function run(){
-
                $this->execRequest();
                $action  = $this->action; 
                $controlFile = $this->controlPath.$this->module.'/'.$this->control.'Control.class.php';
@@ -156,8 +153,8 @@
              * @brief 判断是否为项目模块
              **/		 
             private function isModule($moduleName){
-
-                 return is_dir($this->controlPath.$moduleName);
+                
+                 return !empty($moduleName) && is_dir($this->controlPath.$moduleName);
             }
 				  
             /**
