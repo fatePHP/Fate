@@ -1,6 +1,12 @@
 ﻿<?php
     /*
      * @brief URL组件
+     * @param $rules  路由规则 
+     * @param $ruleMetas  路由规则元数据
+     * @param $format URL格式
+     * @param $tags   路径标签数组
+     * @param $partterns 路由模式数组
+     * @param $routes    路径数组 
      */
     
     class IUrl extends IComponent{
@@ -8,9 +14,9 @@
         
            public $rules=array();
            
-           public $format='normal';
+           public $ruleMetas = array();
            
-           public $suffix='';
+           public $format='normal';
            
            private  $tags = array();
            
@@ -27,7 +33,7 @@
 
                 foreach($this->rules as $parttern=>$route){
        
-                    if(preg_match_all('/<(\w+)>/',$route,$routeMatches)){
+                    if(preg_match_all('/<(\w+)>/',$route,$routeMatches)){ 
                             foreach($routeMatches[1] as $tagName){
                                 $this->tags[$i][$tagName] = "<$tagName>";
                             }
@@ -35,30 +41,25 @@
                     
                    $temp  = array('/'=>'\\/');
 
-                   if(preg_match_all('/<(\w+):?(.*?)?>/',$parttern,$partternMatches)){
+                   if(preg_match_all('/<(\w+):?(.*?)?>/',$parttern,$partternMatches)){ 
                        
                          $params =array_combine($partternMatches[1],$partternMatches[2]);
-                     
+                        
                          foreach($params as $name=>$value) 
                          {
                                 if($value===''){
                                     $value='[^\/]+';
                                 }
-
                                 $temp["<$name>"]="(?P<$name>$value)";
                           }
                     }
     
 
-                    $p = rtrim($parttern,'*');   //如果正则式以*结尾则不是完全匹配 
-                    $append = ($p!==$parttern); //是否在结尾追加
-                    $p=trim($p,'/');
-                    
-                    $temp_p =preg_replace('/<(\w+):?.*?>/','<$1>',$p); //把正则替换成标签 <key>
-
-                    $parttern='/^'.strtr($temp_p,$temp).'\/'; //把正则的<key> 解析成上方的(命名子模式)
-                    
-                    $parttern.=$append ?'/u':'$/u'; //确定是完全匹配还是模糊匹配		
+                    $p = rtrim($parttern,'*'); 
+                    $append = ($p!==$parttern);                 
+                    $temp_p =preg_replace('/<(\w+):?.*?>/','<$1>',$p); 
+                    $parttern='/^'.strtr($temp_p,$temp); 
+                    $parttern.=$append ?'/u':'$/u';	
                     $this->partterns[$i] = $parttern;
                     $this->routes[$i] = $route;
                     $i++;  
@@ -90,38 +91,37 @@
 
                     $uri = $this->getRealSelf();
                     preg_match('/\.php\/(.*)/',$uri,$matchAll);
-                    $pathInfo = empty($matchAll)? '':$matchAll['1']; 
+                     
                      foreach($this->partterns as $i=>$parttern)
                      {      
-                          //定义配置
-                          //$caseSentive = !empty($this->routes[$i]['caseSentive'])? $this->routes[$i]['caseSentive']:false;	
-                          //$defaultParams = !empty($this->routes[$i]['defaultParams'])? $this->routes[$i]['defaultParams']:array();                               
-                          //修正pathInfo
-                          $pathInfo  = empty($suffix)? $pathInfo : substr($pathInfo,0,-strlen($suffix));
-                          $pathInfo = rtrim($pathInfo,'/').'/';
-                          //修正$pattern
-                          $case = true ?'i':'';  
-                          $parttern = $parttern.$case;
+                          $pathInfo = empty($matchAll)? '':$matchAll['1'];
+                          $meta =  isset($this->ruleMetas[$i])? $this->ruleMetas[$i]:array();
+                          $caseSentive = isset($meta['caseSentive'])? $meta['caseSentive']:false;	
+                          $params = !empty($meta['params'])? $meta['params']:array();                               
+                          $suffix = isset($meta['suffix'])?$meta['suffix']:'';
 
+                          $pathInfo  = empty($suffix)? $pathInfo : substr($pathInfo,0,-strlen($suffix));
+                          $case = $caseSentive? 'i':'';  
+                          $parttern = $parttern.$case;
                           if(preg_match($parttern,$pathInfo,$matches))
                           {     
-                                //把默认参数添加到$_GET $_REQUEST
-                                //$_GET = array_merge($defaultParams,$_GET);
-                                //$_REQUEST = array_merge($defaultParams,$_REQUEST);								
+                                
+                                $_GET = array_merge($params,$_GET);
+                                $_REQUEST = array_merge($params,$_REQUEST);
                                 $temp=array();
-                                //把匹配的参数添加到$_GET $_REQUEST
+ 
                                 foreach($matches as $key=>$value)   
                                 {    $temp["<".$key.">"] = $value;
                                      $_REQUEST[$key]=$_GET[$key]=$value;
                                 }
-                                //如果不是完全匹配 则继续解析pathInfo 到$_GET $_REQUEST
-                                if($pathInfo!==$matches[0]){			 
+                                
+                                if(rtrim($pathInfo,'/')!==rtrim($matches[0],'/')){
+                                    
                                        $this->pathinfoToArray(ltrim(substr($pathInfo,strlen($matches[0])),'/'));
                                 }
-
-                                 $pathInfo = strtr($this->routes[$i],$temp);
-                    
-                                 break;
+                                
+                                $pathInfo = strtr($this->routes[$i],$temp);
+                                break;
                             }
 
                         }
