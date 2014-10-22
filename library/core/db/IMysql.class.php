@@ -1,29 +1,38 @@
 <?php defined('IN_FATE') or exit('Access denied');
 			
     /**
-     * @brief  mysql操作类
-     * @param  $db_link       链接句柄
-     * @param  $is_show_error 是否显示错误
+     * @brief  Mysql操作类
+     * @param  $link       链接句柄
+     * @param  $showError 是否显示错误
      **/
 			 
-    class IMysql {
+    class IMysql extends IComponent implements IDataBase {
+                                             
+            
+            public    $showError=true;
+            public    $prefix='';
+            
+            protected $host;
+            protected $name;
+            protected $user;
+            protected $pwd;
 
-            protected $db_link; 
-            protected $is_show_error;
-
+            protected $pconnect=false;
+            protected $charset='';
+            
+            private   $link; 
+                   
             /**
              * @brief 初始化函数
              * @param $config 配置文件
              **/
-            public function __construct($config){
-
-                    $this->is_show_error = !empty($config['show_error'])? $config['show_error']:true;
-                    $this->db_link = $this->connect($config['host'],$config['user'],$config['pwd'],$config['pconnect'])  or 
+             public function init(){
+                 
+                    $this->link = $this->connect($this->host,$this->user,$this->pwd,$this->pconnect)  or 
                     $this->show_error_msg('can\'t connect to Mysql Server');
-                    $this->selectDb($config['name']) or $this->show_error_msg("Database '{$config['name']}' does not exist");
-                    if(!empty($config['charset'])){
-                        $this->query("set names ".$config['charset']);
-                    }
+                    $this->selectDb($this->name)  or $this->show_error_msg("Database '{$this->name}' does not exist");
+                     if(!empty($this->charset))
+                        $this->query("set names ".$this->charset);   
              }
 
               /**
@@ -40,7 +49,7 @@
                **/
               public function selectDb($dbName){
 
-                     return  mysql_select_db($dbName,$this->db_link);
+                     return  mysql_select_db($dbName,$this->link);
               }
 
               /**
@@ -162,7 +171,7 @@
                **/	  
               public function insertId(){
 
-                      return  mysql_insert_id($this->db_link);
+                      return  mysql_insert_id($this->link);
               }
 
               /**	  
@@ -170,7 +179,7 @@
                **/
               public function affectedRows(){  
 
-                     return  mysql_affected_rows($this->db_link);
+                     return  mysql_affected_rows($this->link);
               }
 
               /**
@@ -186,7 +195,7 @@
                **/	  
               public function show_error_msg($msg){
 
-                    if($this->is_show_error){
+                    if($this->showError){
                             die("<br><b> Message : </b>$msg</br><b> MySQL Error : </b>".$this->error());
                     }
               }
@@ -196,7 +205,7 @@
                **/
               public function version(){     
 
-                    return mysql_get_server_info($this->db_link);
+                    return mysql_get_server_info($this->link);
               }
 
               /**
@@ -204,7 +213,7 @@
                **/
               public function errno(){       
 
-                     return mysql_errno($this->db_link);
+                     return mysql_errno($this->link);
               }
 
               /**
@@ -212,7 +221,7 @@
                **/
               public function error(){    
 
-                      return mysql_error($this->db_link);
+                      return mysql_error($this->link);
               }
 
              /**
@@ -228,7 +237,7 @@
                **/
               public function close(){ 
 
-                      return mysql_close($this->db_link);	
+                      return mysql_close($this->link);	
               }
 
               /**
@@ -285,10 +294,11 @@
               /**
                * @brief 删除
                **/
-            public function delete($tbName,$where){
+               public function delete($tbName,$where){
                    $sql = "DELETE FROM `$tbName` WHERE $where";
                    $this->query($sql);
-            }
+               }
+               
 
     }
 

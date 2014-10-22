@@ -1,11 +1,5 @@
 <?php defined('IN_FATE') or die('Access denied!');
-		
-    define('SYS_PATH',str_replace("\\",'/',dirname(__FILE__)));  //系统路径
-    define('SYS_CORE_PATH',SYS_PATH.'/library/core');		 //系统核心类路径
-    define('SYS_EXT_PATH',SYS_PATH.'/library/extension');	 //系统扩展类路径   
-    define('DB_PATH',SYS_PATH.'/library/core/db');		 //系统数据库操作类路径
-    define('CACHE_PATH',SYS_PATH.'/library/core/cache');	 //系统缓存类路径
-	
+			
     /**
      * @brief 核心类
      * @param $inited        初始化标识
@@ -22,7 +16,7 @@
             private static $inited = false;
             private static $self = null;
             private static $app  = null;
-            private static $globalPath  = array('sys_core'=>SYS_CORE_PATH,'sys_ext'=>SYS_EXT_PATH,'sys_db'=>DB_PATH,'sys_cache'=>CACHE_PATH);
+            private static $globalPath  = array();
             private static $globalClass = array();
             private static $globalPointer = array();
             private static $globalObject = array();
@@ -34,10 +28,26 @@
                 
                    if(self::$inited)
                       throw new IException('System has been worked!');
+                   self::regGlobalPath();
                    self::regAutoLoad();
                    self::run();
             }
-
+            
+            /**
+             * @brief 注册核心类路径
+             */
+            private static function regGlobalPath(){
+                
+                  $sys_path = str_replace("\\",'/',dirname(__FILE__));
+                  $globalPathArr = array(
+                            'sys_core'=>$sys_path.'/library/core',
+                            'sys_ext'=>$sys_path.'/library/extension',
+                            'sys_db'=>$sys_path.'/library/core/db',
+                            'sys_cache'=>$sys_path.'/library/core/cache'
+                   );
+                   self::setGlobalPath($globalPathArr);
+            }
+            
             /**
              * @brief 注册autoLoad 函数
              **/

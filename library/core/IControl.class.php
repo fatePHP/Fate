@@ -10,6 +10,20 @@
 
             private  $view;
             private  $model;
+            
+            /**
+             * @brief 执行action之前进行的操作
+             */
+            public function beginAction(){
+
+            }
+            
+            /**
+             * @brief 执行action之后进行的操作
+             */
+            public function endAction(){
+
+            }
 
             /**
              * @brief 初始化函数
@@ -22,20 +36,6 @@
         
             }    
             
-            /*
-             * @brief 执行action之前进行的操作
-             */
-            public function beginAction(){
-
-            }
-            
-            /*
-             * @brief 执行action之后进行的操作
-             */
-            public function endAction(){
-
-            }
-
             /**
              * @brief 模板变量赋值
              * @param $k 键名
@@ -48,8 +48,11 @@
 
             /**
              * @brief 输出模板 
+             * @param $path    视图路径
+             * @param $value   渲染视图的数据
+             * @param $layout  布局文件
              **/			
-             public function render($path,$value=array(),$layout=true){
+             public function render($value=array(),$path='',$layout=true){
 
                     if(is_array($value) && !empty($value)){
 
@@ -57,22 +60,13 @@
                              $this->view->assign($k,$v);
                         }	
                     }
-                    
+                    if(empty($path))
+                        $path = Fate::app()->module.'/'.Fate::app()->control.'/'.Fate::app()->action;
                     $this->view->display($path,$layout);
              }
              
              /**
-              * @brief 设置视图布局
-              * @param type $value
-              */
-             public function setLayout($value){
-                 
-                  $this->view->layout = $value;
-             }
-             
-             /**
               * @brief 视图布局文件
-              * @return type
               */
              public function getLayout(){
                  
@@ -80,10 +74,18 @@
              }
              
              /**
-              * @brief 加载模型 
-              * @param type $name
-              * @param type $module
-              * @return type
+              * @brief 设置视图布局
+              * @param $value 视图名称
+              */
+             public function setLayout($value){
+                 
+                  $this->view->layout = $value;
+             }
+             
+             /**
+              * @brief 返回模型 
+              * @param type $name   模型名称
+              * @param type $module 模块名称
               */
              public function model($name='',$module=''){
 
@@ -94,9 +96,10 @@
              }
              
              /**
-              * @brief 获取当前控制器对应的 模型类
+              * @brief 返回当前控制器对应的模型
               */
              public function getModel(){
+                 
                   return $this->model;
              }
 

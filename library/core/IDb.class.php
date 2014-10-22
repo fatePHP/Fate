@@ -1,50 +1,59 @@
 <?php defined('IN_FATE') or die('Access denied');
 			
     /**
-     * @brief 数据库驱动类
+     * @brief 数据库代理类
      * @param $type 数据库类型
      * @param $db   数据库对象
      **/
 
     class IDb extends IComponent{
-
-         protected $type;
-         protected $host;
-         protected $name;
-         protected $user;
-         protected $pwd;
-         protected $prefix;
-         protected $pconnect;
-         protected $showError;
-         protected $charset;
-         private   $driver;
          
-         
-         public  function __construct($config){
-              parent::__construct($config);
-              unset($config['type']);
-              $this->drive($this->type,$config);
+         private   $db = '';
+         private   $maps = array();
+         private   $type;
+        
+         public function __construct($config){
+             $this->type = array_shift(array_keys($config));
+             $this->maps = $config;
+             $this->proxy();
          }
-         
-         public function drive($type='',$config=array()){
-               
-              if(empty($type))
-                  return $this->driver;
+                           
+         public function proxy($type=''){
+             
+              if(empty($type)){
+                  
+                  if(!empty($this->db))
+                       return $this->db;
+                  
+                  $type = $this->type;
+              }
               
-              $driverName  ='I'.ucfirst($type);
-              Fate::import('sys_db.'.$driverName);
-              $this->driver = new $driverName($config);
+              $name  ='I'.ucfirst($type);
+              Fate::import('sys_db.'.$name);
+              
+              if(!empty($this->maps[$type])){
+                $db = new $name($this->maps[$type]);
+                $this->db = $db;
+              }else{
+                  throw new IException("$type config is NULL");
+              }
+         }
+                  
+         public function __call($method,$params){
+             
+                return call_user_func_array(array($this->db,$method),$params);
          }
          
-         public function getPrefix(){
+         public function __get($name){
              
-                return $this->prefix;
+                return  $this->db->$name;
          }
          
-         public function setPrefix($value){
+         public function __set($name,$value){
              
-               $this->prefix = $value;
+                $this->db->$name = $value;
          }
+        
 
     }
 ?>

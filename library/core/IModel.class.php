@@ -24,7 +24,7 @@
              * @breif 初始化函数
              **/
             public function  __construct(){ 
-                 $this->db = Fate::app()->db->drive();
+                 $this->db = Fate::app()->db;
                  parent::__construct();
             }
 

@@ -1,14 +1,9 @@
 <?php  defined('IN_FATE') or die('Access denied!');
-
-        defined('APP_PATH') or define('APP_PATH',str_replace('\\','/',dirname($_SERVER['SCRIPT_FILENAME'])));
-        defined('MODEL_PATH') or define('MODEL_PATH',APP_PATH.'/models/');
-        defined('CONTROL_PATH') or define('CONTROL_PATH',APP_PATH.'/controllers/');
        
         /**
          * @brief 应用类
          * @param $debug            是否开启调试模式
          * @param $config           配置文件数组
-         * @param $extensionPath    应用扩展类路径
          * @param $module   	     应用加载对应模块
          * @param $control          默认的控制器
          * @param $action           默认的方法
@@ -16,12 +11,19 @@
          * @param $charset   	     字符集
          * @param $language  	     语言包
          * @param $errorLevel       错误级别
+         * @param $configPath       应用配置文件目录
+         * @param $cachePath        应用缓存文件目录
+         * @param $controlPath      应用控制器路径
+         * @param $modelPath        应用模型路径
+         * @param $extensionPath    应用扩展路径
+         * @param $themePath        应用模板主题路径
+         * @param $globalPath       应用全局路径数组
          **/
 	 
          class IApp extends IComponentManager{
 				
             protected  $debug=true;
-            protected  $extensionPath=array('app'=>APP_PATH,'app_model'=>MODEL_PATH,'app_control'=>CONTROL_PATH,'app_ext'=>'app.extensions');
+                        
             protected  $timeZone ='Asia/Shanghai';
             protected  $charset = 'utf-8';
             protected  $language = 'zh_cn';
@@ -29,20 +31,48 @@
             protected  $module='';
             protected  $control='home';
             protected  $action='index'; 
-            protected  $controlPath = CONTROL_PATH;
-            protected  $modelPath = MODEL_PATH;
             protected  $config  = array(); 
+            
+            private    $configPath;
+            protected  $cachePath;
+            protected  $controlPath ;
+            protected  $modelPath;
+            protected  $extensionPath;
+            protected  $themePath;
+            protected  $globalPath;
 	 	 		  
             /**
-             * @brief 应用初始化函数
+             * @brief 初始化函数
              **/
             public function __construct(){
                 
+                $this->initEnvironment();
                 $this->initConfig();
                 $this->initHandlers();
                 $this->initTimeZone();
                 $this->initGlobalPath();
                 $this->initComponent();
+            }
+            
+            /**
+             * @brief 初始化应用环境
+             */
+            private function initEnvironment(){
+                
+                $app_path = str_replace('\\','/',dirname($_SERVER['SCRIPT_FILENAME']));
+                
+                $this->configPath = $app_path.'/config/';
+                $this->cachePath = $app_path.'/cache/';
+                $this->controlPath = $app_path.'/controllers/';
+                $this->modelPath = $app_path.'/models/';
+                $this->extensionPath = $app_path.'/extensions/';
+                $this->themePath = $app_path.'/themes/';
+                $this->globalPath = 
+                             array( 
+                                'app_model'=>$this->modelPath,
+                                'app_control'=>$this->controlPath,
+                                'app_ext'=>$this->extensionPath
+                              );
             }
 					
             /**
@@ -50,19 +80,19 @@
              **/				
             private function initConfig(){
 
-                $mainConfig = APP_PATH.'/config/main.php';
-                $componentConfig = APP_PATH.'/config/component.php';
+                $mainConfig = $this->configPath.'main.php';
+                $componentConfig = $this->configPath.'component.php';
 
                 if(!is_file($mainConfig)|| !is_file($componentConfig))
                     die('Configuration file not found !');
 
                 $this->config['main']= require $mainConfig;
                 $this->config['component'] = require $componentConfig;
+                
                 foreach($this->config['main'] as $key=>$value){
                     if(is_array($this->$key)){
-                          if(is_array($value)){
+                          if(is_array($value))
                             $this->$key = array_merge($this->$key,$value);
-                          }
                     }else{
                           $this->$key = $value;
                     }
@@ -110,7 +140,7 @@
              */
             private function initGlobalPath(){
                 
-                 Fate::setGlobalPath($this->extensionPath);
+                 Fate::setGlobalPath($this->globalPath);
             }
             
             /** 
@@ -134,29 +164,22 @@
             }
 					
             /**
-             * @brief 执行应用
+             * @brief 执行
              **/
             public function run(){
                $this->execRequest();
                $action  = $this->action; 
                $controlFile = $this->controlPath.$this->module.'/'.$this->control.'Control.class.php';
-               if(is_file($controlFile) && ($control = $this->control($this->control)) && method_exists($control,$action)){              
+               if(is_file($controlFile) && ($control = $this->control($this->control)) && method_exists($control,$action))               {              
                       $control->beginAction();
                       call_user_func(array($control,$action));
                       $control->endAction(); 	 	
                }else{
+                    if(!$this->debug)
                       throw new IHttpException('404 not found!',404);
                }   
             }
-					
-            /**
-             * @brief 判断是否为项目模块
-             **/		 
-            private function isModule($moduleName){
-                
-                 return !empty($moduleName) && is_dir($this->controlPath.$moduleName);
-            }
-				  
+									  
             /**
              * @brief 获取应用配置文件
              * @param $name 配置文件索引
@@ -184,6 +207,8 @@
             
             /**
              * @brief 获取应用中的模型 
+             * @param $name   模型名称
+             * @param $module 模块
              **/
             public function model($name,$module=''){
                    
@@ -207,6 +232,8 @@
             
             /**
              * @brief 获取应用中的控制器
+             * @param $name 控制器名称
+             * @param $module 模块名称
              **/
             public function control($name,$module=''){
                 
@@ -228,32 +255,76 @@
                    return new $name;
             }
             
+            /**
+             * @brief 返回时区
+             * @return type
+             */
             public function getTimeZone(){
                 
                   return $this->timeZone;
             }
             
+            /**
+             * @brief 设置时区
+             * @param $value 时区
+             * @return type
+             */
             public function setTimeZone($value){
                 
                   $this->timeZone = $value;
             }
+            /**
+             * @brief 返回模板主题路径
+             */
+            public function getThemePath(){
+                 
+                   return $this->themePath;
+            }
             
+            /**
+             * @brief 返回缓存路径
+             */
+            public function getCachePath(){
+                
+                    return $this->cachePath; 
+            }
+            
+            /**
+             * @brief 判断是否为项目模块 存在问题
+             * @param $moduleName 模块名称
+             **/		 
+            private function isModule($moduleName){
+                
+                 return !empty($moduleName) && is_dir($this->controlPath.$moduleName);
+            }
+            
+            /**
+             * @brief 返回当前模块名称
+             * @return type
+             */
+            public function getModule(){
+                
+                return $this->module;
+            }
+            
+            /**
+             * @brief 返回当前控制器名称
+             * @return type
+             */
             public function getControl(){
                     
                  return  $this->control;
             }
             
+            /**
+             * @brief 返回当前执行操作名称
+             * @return type
+             */
             public function getAction(){
                 
                 return $this->action;
             }
-            
-            public function getModule(){
-                
-                return $this->module;
-            }
-				 
-
+         				 
    }
 
 ?>

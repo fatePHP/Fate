@@ -20,25 +20,22 @@
         protected  $left ='<{';
         protected  $right ='}>'; 
         
-        public    $layout='';
-        public    $theme = 'default';
+        public  $layout='';
+        public  $theme = 'default';
         
-        private   $viewFile;
+        private $viewFile;
         
         public  $suffix = '.html';
         private $viewPath;
         public  $compileSuffix='.compile';
         private $compilePath;
        
-        private $tags = array('\$','url','root','foreach','include','require','if','elseif','else','while','for','js','css','image','					upload','view','set','echo','code');
+        private $tags = array('\$','url','root','foreach','include','require','if','elseif','else','while','for','js','css','image','upload','view','set','echo','code');
         
         private $data = array();
-        
-        /**
-         * @brief 初始化函数
-         **/ 			  
-        public function __construct($config){
-            parent::__construct($config);
+                
+        public function init(){
+            
             $this->viewPath = $this->getViewPath();
             $this->compilePath = $this->getcompilePath();
         }
@@ -48,7 +45,7 @@
          **/
         public function getViewPath(){
 
-              return APP_PATH.'/themes/'.$this->theme.'/';
+              return Fate::app()->themePath.$this->theme.'/';
         }
 					
         /**
@@ -56,7 +53,7 @@
          **/
         public function getCompilePath(){
 
-             return APP_PATH.'/cache/compile/'.$this->theme.'/';
+             return Fate::app()->cachePath.'/compile/'.$this->theme.'/';
         }
 					
         /**

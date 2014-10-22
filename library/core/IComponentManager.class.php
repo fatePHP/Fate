@@ -1,14 +1,27 @@
 <?php
     
+    /**
+     * @brief 组件控制台
+     * @param $component  组件数组集合
+     */
+
     class  IComponentManager extends IBase  {
             
             private $component = array('url'=>array(),'view'=>array());
             
+            /**
+             * @brief 初始化应用组件
+             */
             protected function initComponent(){
                 
                     $this->component = array_merge($this->component,$this->config('component'));
             }
-        
+            
+            /**
+             * @brief 加载组件 若没有 获取属性值
+             * @param type $component
+             * @return \IComponent
+             */
             public function __get($component){
 
                 if(isset($this->component[$component])){
