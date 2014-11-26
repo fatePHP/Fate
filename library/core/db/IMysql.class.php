@@ -104,7 +104,8 @@
                     $str = "(`".implode('`,`',array_keys($arr))."`) VALUES ('".implode("','",$arr)."')";
                     $sql= "INSERT INTO `$tbName` $str";
                     if($this->query($sql)){
-                        return $this->insertId();
+                        $insertId = $this->insertId();
+                        return $insertId?$insertId:true;
                     }
                     
                     return false;
