@@ -49,10 +49,7 @@
 
         }
         
-        public function __call($method,$params){
-            
-                throw new IException ('Method '.$method." doesn't exit in class".get_class($this) );
-        }
+
         
         static public function __callStatic($name, $arguments) {
             

@@ -81,12 +81,12 @@
                  }else{
                         
                        if(substr($className,-7)=='Control' && $className !='IControl'){
-                           self::app()->control(substr($className,0,-7));
+                           self::app()->control(substr($className,0,-7),'',false);
                            return ;
                        }
                        
                        if(substr($className,-5)=='Model' && $className != 'IModel'){
-                           self::app()->model(substr($className,0,-5));
+                           self::app()->model(substr($className,0,-5),'',false);
                            return ;
                        }
                        
@@ -187,8 +187,8 @@
                   
                   if(class_exists($pointer,false))
                        return true ;
-                  
-                  if(strpos($pointer,'.')){
+         
+                  if(strpos($pointer,'.')!==false){
                     
                         $pathArr = explode('.',$pointer);	
                         
@@ -203,16 +203,17 @@
                         if($class!='*'){
            
                             $file = $path.'/'.$class.'.class.php';
-                            
+                 
                             if(!is_file($file))
                                  return false;
                             
                             self::$globalPointer[$pointer] = $file;
                             self::$globalClass[$class] = $file;
 
-                            if($force) 
-                               require $file;	
-                            
+                            if($force){
+                            		require $file;
+                            }
+      
                             return true ;
                         }
                   

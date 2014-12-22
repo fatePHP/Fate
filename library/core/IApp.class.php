@@ -149,6 +149,7 @@
             private function execRequest(){
                                                           
                 $url_route = $this->url->parseUrlRules()->parseUrl();
+
                 $info = explode('/',trim($url_route,'/'));
                 if(!empty($info[0]) && !empty($url_route)){
                     if($this->isModule($info[0])){
@@ -170,7 +171,8 @@
                $this->execRequest();
                $action  = $this->action; 
                $controlFile = $this->controlPath.$this->module.'/'.$this->control.'Control.class.php';
-               if(is_file($controlFile) && ($control = $this->control($this->control)) && method_exists($control,$action))               {              
+               if(is_file($controlFile) && ($control = $this->control($this->control)) && method_exists($control,$action))               {   
+         
                       $control->beginAction();
                       call_user_func(array($control,$action));
                       $control->endAction(); 	 	
@@ -236,8 +238,9 @@
              * @param $module 模块名称
              **/
             public function control($name,$module=''){
-                
+                	
                    $name = $name.'Control';
+                   
                    if($module === false){
                        
                         Fate::import( $this->controlPath.$name,true);
@@ -248,8 +251,9 @@
                         }else{
                             $module = $this->module;
                         }
-                            
+												
                         Fate::import( $this->controlPath.$module.'/'.$name,true);
+           
                    }
                    
                    return new $name;

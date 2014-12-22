@@ -13,7 +13,9 @@
          private   $type;
         
          public function __construct($config){
-             $this->type = array_shift(array_keys($config));
+
+         		 $db_arr = array_keys($config);
+             $this->type = array_shift($db_arr);
              $this->maps = $config;
              $this->proxy();
          }

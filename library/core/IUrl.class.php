@@ -90,6 +90,7 @@
                 case 'pathinfo':	 //PATHINFO模式
 
                     $uri = $this->getRealSelf();
+        
                     preg_match('/\.php\/(.*)/',$uri,$matchAll);
                      
                      foreach($this->partterns as $i=>$parttern)
